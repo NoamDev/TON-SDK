@@ -1,0 +1,476 @@
+.macro constructor
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+;; constructor protection
+GETGLOB 6
+THROWIF 51
+PUSHINT 1
+SETGLOB 6
+;; end constructor protection
+; Decode input parameters
+; Decode amount
+LDU 64
+; Decode goal
+LDREF
+ENDS
+;; param: amount
+;; param: goal
+; constructor Piggy
+GETGLOB 2
+; expValue
+; end expValue
+; colValue
+SETGLOB 12
+; end colValue
+; expValue
+; end expValue
+;; push identifier amount
+; colValue
+; end colValue
+; expValue
+; end expValue
+;; push identifier goal
+; colValue
+; end colValue
+; end constructor Piggy
+SWAP
+SETGLOB 11
+SETGLOB 10
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro transfer
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode to
+LDMSGADDR
+ENDS
+;; param: to
+CALLREF {
+	CALL $transfer_internal_macro$
+}
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	transfer_internal
+.type	transfer_internal, @function
+CALL $transfer_internal_macro$
+
+.macro transfer_internal_macro
+;; param: to
+; modifier onlyOwner
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+;; push identifier _owner
+GETGLOB 12
+EQUAL
+THROWIFNOT 100
+ACCEPT
+; function transfer
+;; get member balance
+GETPARAM 7
+INDEX 0
+;; >
+;; push identifier targetAmount
+GETGLOB 11
+GREATER
+THROWIFNOT 101
+;; transfer()
+;; push identifier targetAmount
+GETGLOB 11
+;; push identifier to
+PUSH S1
+NEWC
+STSLICECONST x42_
+STSLICE
+SWAP
+STGRAMS
+PUSHINT 107
+STZEROES
+ENDC
+PUSHINT 128
+SENDRAWMSG
+; end function transfer
+; end modifier onlyOwner
+DROP
+
+.macro getGoal
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+ENDS
+CALLREF {
+	CALL $getGoal_internal_macro$
+}
+;; emitting 1 value(s)
+PUSH S1
+EQINT -1
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x00000000000000000000000037106062a_
+	STSLICER
+	PUSH S1
+	STREFR
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+DROP
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	getGoal_internal
+.type	getGoal_internal, @function
+CALL $getGoal_internal_macro$
+
+.macro getGoal_internal_macro
+; function getGoal
+;; return
+;; push identifier targetGoal
+GETGLOB 10
+; end function getGoal
+
+.macro getTargetAmount
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+ENDS
+CALLREF {
+	CALL $getTargetAmount_internal_macro$
+}
+;; emitting 1 value(s)
+PUSH S1
+EQINT -1
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x0000000000000000000000003ca84a312_
+	STSLICER
+	PUSH S1
+	STUR 64
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+DROP
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	getTargetAmount_internal
+.type	getTargetAmount_internal, @function
+CALL $getTargetAmount_internal_macro$
+
+.macro getTargetAmount_internal_macro
+; function getTargetAmount
+;; return
+;; push identifier targetAmount
+GETGLOB 11
+; end function getTargetAmount
+
+.macro sendAllMoney
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode dest_addr
+LDMSGADDR
+ENDS
+;; param: dest_addr
+CALLREF {
+	CALL $sendAllMoney_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	sendAllMoney_internal
+.type	sendAllMoney_internal, @function
+CALL $sendAllMoney_internal_macro$
+
+.macro sendAllMoney_internal_macro
+;; param: dest_addr
+; modifier onlyOwner
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+;; push identifier _owner
+GETGLOB 12
+EQUAL
+THROWIFNOT 100
+ACCEPT
+; function sendAllMoney
+;; push identifier dest_addr
+DUP
+NEWC
+STSLICECONST x42_
+STSLICE
+PUSHSLICE x203e8000000000000000000000000001_
+STSLICER
+ENDC
+PUSHINT 160
+SENDRAWMSG
+; end function sendAllMoney
+; end modifier onlyOwner
+DROP
+
+.macro c7_to_c4
+GETGLOB 2
+NEWC
+STU 256
+GETGLOB 3
+STUR 64
+GETGLOB 6
+STUR 1
+GETGLOB 10
+GETGLOB 11
+GETGLOB 12
+REVERSE 4, 0
+STREF
+STU 64
+STU 256
+ENDC
+POP C4
+
+.macro c4_to_c7
+PUSHROOT
+CTOS        ; c4
+LDU 256      ; pubkey c4
+LDU 64      ; pubkey timestamp c4
+LDU 1       ; pubkey [timestamp] constructor_flag memory
+LDREF
+LDU 64
+PLDU 256
+SETGLOB 12
+SETGLOB 11
+SETGLOB 10
+TRUE
+SETGLOB 1   ; pubkey [timestamp] constructor_flag
+SETGLOB 6   ; pubkey [timestamp]
+SETGLOB 3   ; D
+SETGLOB 2
+
+.macro c4_to_c7_with_init_storage
+PUSHROOT
+CTOS        ; c4
+DUP        ; c4 c4
+SBITS      ; c4 bits
+GTINT 1    ; c4 bits>1
+PUSHCONT {
+	LDU 256      ; pubkey c4
+	LDU 64      ; pubkey timestamp c4
+	LDU 1       ; pubkey [timestamp] constructor_flag memory
+	LDREF
+	LDU 64
+	PLDU 256
+	SETGLOB 12
+	SETGLOB 11
+	SETGLOB 10
+	TRUE
+	SETGLOB 1   ; pubkey [timestamp] constructor_flag
+	SETGLOB 6   ; pubkey [timestamp]
+	SETGLOB 3   ; D
+	SETGLOB 2
+}
+PUSHCONT {
+	PLDDICT   ; D
+	; init targetGoal
+	PUSHREF {
+	}
+	SETGLOB 10
+	; init targetAmount
+	PUSHINT 0
+	SETGLOB 11
+	; init _owner
+	PUSHINT 0
+	SETGLOB 12
+	; set contract pubkey
+	PUSHINT 0
+	SWAP
+	PUSHINT 64
+	DICTUGET
+	THROWIFNOT 61
+	PLDU 256
+	SETGLOB 2
+	PUSHINT 0 ; timestamp
+	SETGLOB 3
+	PUSHINT 0 ; constructor_flag
+	SETGLOB 6
+	TRUE
+	SETGLOB 1
+}
+IFELSE
+
+.internal-alias :main_internal, 0
+.internal :main_internal
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Function: main_internal
+;; param: contract_balance
+;; param: msg_balance
+;; param: int_msg_info
+;; param: msg_body_slice
+;; param: transaction_type
+PUSH S2
+CTOS
+PLDU 4
+MODPOW2 1
+IFRET
+PUSH S1    ; body
+SEMPTY     ; isEmpty
+IFRET
+PUSH S1 ; body
+LDU 32  ; funcId body'
+PUSH S1 ; funcId body' funcId
+IFNOTRET
+SWAP
+CALLREF {
+	CALL $public_function_selector$
+}
+GETGLOB 7
+ISNULL
+THROWIF 60
+
+.internal-alias :main_external, -1
+.internal :main_external
+PUSH S1
+CALLREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+LDU 1 ; haveSign msgSlice
+SWAP
+PUSHCONT {
+	PUSHINT 512
+	LDSLICEX ; signatureSlice msgSlice
+	DUP      ; signatureSlice msgSlice msgSlice
+	HASHSU   ; signatureSlice msgSlice hashMsgSlice
+	ROT
+	GETGLOB 2
+	DUP
+	SETGLOB 5
+	CHKSIGNU      ; msgSlice isSigned
+	THROWIFNOT 40 ; msgSlice
+}
+IF
+LDU 64                         ; timestamp msgSlice
+SWAP                           ; msgSlice timestamp
+CALL $replay_protection_macro$ ; msgSlice
+LDU 32  ; expireAt msgSlice
+SWAP    ; msgSlice expireAt
+NOW     ; msgSlice expireAt now
+GREATER ; msgSlice expireAt>now
+THROWIFNOT 57
+LDU  32 ; funcId body
+SWAP    ; body funcId
+CALLREF {
+	CALL $public_function_selector$
+}
+GETGLOB 7
+ISNULL
+THROWIF 60
+
+.macro public_function_selector
+DUP
+PUSHINT 1409299885
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 844776635
+	EQUAL
+	IFJMPREF {
+		CALL $transfer$
+	}
+	DUP
+	PUSHINT 1409299885
+	EQUAL
+	IFJMPREF {
+		CALL $sendAllMoney$
+	}
+}
+IFJMP
+DUP
+PUSHINT 1923164356
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 1547796874
+	EQUAL
+	IFJMPREF {
+		CALL $getGoal$
+	}
+	DUP
+	PUSHINT 1923164356
+	EQUAL
+	IFJMPREF {
+		CALL $getTargetAmount$
+	}
+}
+IFJMP
+DUP
+PUSHINT 1993972235
+EQUAL
+IFJMPREF {
+	CALL $constructor$
+}

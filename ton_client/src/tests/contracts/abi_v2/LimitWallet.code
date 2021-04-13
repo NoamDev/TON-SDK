@@ -1,0 +1,1649 @@
+.macro constructor
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+;; constructor protection
+GETGLOB 6
+THROWIF 51
+PUSHINT 1
+SETGLOB 6
+;; end constructor protection
+ENDS
+ACCEPT
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro sendTransaction
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode dest
+LDMSGADDR
+; Decode value
+LDUQ 128
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDU 128
+}
+IFNOT
+; Decode bounce
+LDIQ 1
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDI 1
+}
+IFNOT
+ENDS
+;; param: dest
+;; param: value
+;; param: bounce
+CALLREF {
+	CALL $sendTransaction_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	sendTransaction_internal
+.type	sendTransaction_internal, @function
+CALL $sendTransaction_internal_macro$
+
+.macro sendTransaction_internal_macro
+;; param: dest
+;; param: value
+;; param: bounce
+; modifier OnlyOwner
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 100
+; function sendTransaction
+;; push identifier value
+PUSH S1
+;; param: value
+; function _checkLimits
+FALSE
+;; decl: overrun
+;; map.min
+;; push identifier m_limits
+GETGLOB 14
+PUSHINT 64
+DICTUMIN
+NULLSWAPIFNOT
+PUSHCONT {
+	SWAP
+	LDU 256
+	LDU 32
+	LDU 8
+	LDU 256
+	PLDU 32
+	TUPLE 5
+	TUPLE 2
+}
+IF
+;; decl: m_limit
+; while
+FALSE ; decl return flag
+PUSHCONT {
+	DUP
+	LESSINT 2
+	DUP
+	PUSHCONT {
+		DROP
+		;; push identifier m_limit
+		PUSH S1
+		ISNULL
+		NOT
+	}
+	IF
+}
+PUSHCONT {
+	;; push identifier m_limit
+	PUSH2 S1, S1
+	ISNULL
+	THROWIF 63
+	UNTUPLE 2
+	;; decl: id
+	;; decl: limit
+	;; get member start
+	;; push identifier limit
+	DUP
+	INDEX 4
+	;; +
+	;; get member period
+	;; push identifier limit
+	PUSH S1
+	INDEX 1
+	;; *
+	;; push identifier SECONDS_IN_DAY
+	GETGLOB 12
+	MUL
+	UFITS 32
+	ADD
+	UFITS 32
+	;; decl: endTime
+	;; push identifier now
+	NOW
+	;; uint32
+	;; decl: nowTime
+	;; if
+	;; push identifier nowTime
+	;; >
+	;; push identifier endTime
+	PUSH2 S0, S1
+	GREATER
+	PUSHCONT {
+		; expValue
+		; end expValue
+		;; push identifier nowTime
+		PUSH2 S2, S0
+		; colValue
+		SETINDEX 4
+		POP S3
+		; end colValue
+		; expValue
+		PUSH S2
+		; end expValue
+		PUSHINT 0
+		; colValue
+		SETINDEX 3
+		POP S3
+		; end colValue
+	}
+	IF
+	;; end if
+	;; push identifier value
+	; expValue
+	PUSH3 S7, S2, S2
+	INDEX 3
+	; end expValue
+	ROT
+	ADD
+	; colValue
+	SETINDEX 3
+	POP S3
+	; end colValue
+	;; if
+	;; get member spent
+	;; push identifier limit
+	PUSH S2
+	INDEX 3
+	;; >
+	;; get member value
+	;; push identifier limit
+	PUSH S3
+	INDEX 0
+	GREATER
+	PUSHCONT {
+		; expValue
+		; end expValue
+		; colValue
+		; end colValue
+		;; break
+		BLKDROP 5
+		TRUE
+		POP S2
+		PUSHINT 2
+	}
+	IFJMP
+	;; end if
+	; expValue
+	;; fetch m_limits
+	;; push identifier id
+	PUSH S3
+	GETGLOB 14
+	; end expValue
+	;; push identifier limit
+	PUSH S4
+	; colValue
+	UNTUPLE 5
+	REVERSE 5, 0
+	NEWC
+	STU 256
+	STU 32
+	STU 8
+	STU 256
+	STU 32
+	ROTREV
+	PUSHINT 64
+	DICTUSETB
+	SETGLOB 14
+	; end colValue
+	;; map.next
+	;; push identifier id
+	PUSH S3
+	;; push identifier m_limits
+	GETGLOB 14
+	PUSHINT 64
+	DICTUGETNEXT
+	NULLSWAPIFNOT
+	PUSHCONT {
+		SWAP
+		LDU 256
+		LDU 32
+		LDU 8
+		LDU 256
+		PLDU 32
+		TUPLE 5
+		TUPLE 2
+	}
+	IF
+	; expValue
+	; end expValue
+	; colValue
+	POP S6
+	; end colValue
+	BLKDROP 4
+}
+WHILE
+DROP
+; end while
+;; return
+;; push identifier overrun
+PUSH S1
+BLKDROP2 2, 1
+; end function _checkLimits
+NIP
+;; ==
+FALSE
+EQUAL
+THROWIFNOT 101
+;; transfer()
+;; push identifier value
+;; push identifier dest
+;; push identifier bounce
+PUSH3 S1, S2, S0
+NEWC
+STSLICECONST x6_
+STI 1
+PUSHINT 3
+STZEROES
+STSLICE
+SWAP
+STGRAMS
+PUSHINT 107
+STZEROES
+ENDC
+PUSHINT 3
+SENDRAWMSG
+; end function sendTransaction
+; end modifier OnlyOwner
+BLKDROP 3
+
+.macro createOperationLimit
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode value
+LDU 256
+ENDS
+;; param: value
+CALLREF {
+	CALL $createOperationLimit_internal_macro$
+}
+;; emitting 1 value(s)
+PUSH S1
+EQINT -1
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x00000000000000000000000028fcbb6d2_
+	STSLICER
+	PUSH S1
+	STUR 256
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+DROP
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	createOperationLimit_internal
+.type	createOperationLimit_internal, @function
+CALL $createOperationLimit_internal_macro$
+
+.macro createOperationLimit_internal_macro
+;; param: value
+;; ret param: retParam@0
+PUSHINT 0
+; modifier OnlyOwner
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 100
+; function createOperationLimit
+;; push identifier value
+PUSH S1
+PUSHINT 0
+PUSHINT 0
+;; param: value
+;; param: period
+;; param: ltype
+; function _validate
+;; push identifier value
+PUSH S2
+GTINT 0
+THROWIFNOT 102
+;; if
+;; push identifier ltype
+DUP
+EQINT 1
+PUSHCONT {
+	;; push identifier period
+	PUSH S1
+	GTINT 0
+	;; short-circuiting &&
+	DUP
+	PUSHCONT {
+		DROP
+		;; push identifier period
+		PUSH S1
+		;; <=
+		;; push identifier MAX_LIMIT_PERIOD
+		GETGLOB 13
+		LEQ
+	}
+	IF
+	THROWIFNOT 104
+}
+PUSHCONT {
+	;; push identifier period
+	PUSH S1
+	THROWIF 104
+}
+IFELSE
+;; end if
+;; push identifier m_limitCount
+;; <
+;; push identifier MAX_LIMIT_COUNT
+; end function _validate
+BLKDROP 3
+GETGLOB 15
+GETGLOB 11
+LESS
+THROWIFNOT 105
+ACCEPT
+;; return
+;; push identifier value
+PUSH S1
+PUSHINT 0
+PUSHINT 0
+CALLREF {
+	CALL $_newLimit_internal_macro$
+}
+NIP
+; end function createOperationLimit
+; end modifier OnlyOwner
+NIP
+
+.macro createArbitraryLimit
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode value
+LDU 256
+; Decode period
+LDU 32
+ENDS
+;; param: value
+;; param: period
+CALLREF {
+	CALL $createArbitraryLimit_internal_macro$
+}
+;; emitting 1 value(s)
+PUSH S1
+EQINT -1
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x0000000000000000000000003aefbec22_
+	STSLICER
+	PUSH S1
+	STUR 64
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+DROP
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	createArbitraryLimit_internal
+.type	createArbitraryLimit_internal, @function
+CALL $createArbitraryLimit_internal_macro$
+
+.macro createArbitraryLimit_internal_macro
+;; param: value
+;; param: period
+;; ret param: retParam@0
+PUSHINT 0
+; modifier OnlyOwner
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 100
+; function createArbitraryLimit
+;; push identifier value
+;; push identifier period
+BLKPUSH 2, 2
+PUSHINT 1
+;; param: value
+;; param: period
+;; param: ltype
+; function _validate
+;; push identifier value
+PUSH S2
+GTINT 0
+THROWIFNOT 102
+;; if
+;; push identifier ltype
+DUP
+EQINT 1
+PUSHCONT {
+	;; push identifier period
+	PUSH S1
+	GTINT 0
+	;; short-circuiting &&
+	DUP
+	PUSHCONT {
+		DROP
+		;; push identifier period
+		PUSH S1
+		;; <=
+		;; push identifier MAX_LIMIT_PERIOD
+		GETGLOB 13
+		LEQ
+	}
+	IF
+	THROWIFNOT 104
+}
+PUSHCONT {
+	;; push identifier period
+	PUSH S1
+	THROWIF 104
+}
+IFELSE
+;; end if
+;; push identifier m_limitCount
+;; <
+;; push identifier MAX_LIMIT_COUNT
+; end function _validate
+BLKDROP 3
+GETGLOB 15
+GETGLOB 11
+LESS
+THROWIFNOT 105
+ACCEPT
+;; return
+;; push identifier value
+;; push identifier period
+BLKPUSH 2, 2
+PUSHINT 1
+CALLREF {
+	CALL $_newLimit_internal_macro$
+}
+NIP
+; end function createArbitraryLimit
+; end modifier OnlyOwner
+BLKDROP2 2, 1
+
+.macro changeLimit
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode limitId
+LDU 64
+; Decode value
+LDU 256
+; Decode period
+LDU 32
+ENDS
+;; param: limitId
+;; param: value
+;; param: period
+CALLREF {
+	CALL $changeLimit_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	changeLimit_internal
+.type	changeLimit_internal, @function
+CALL $changeLimit_internal_macro$
+
+.macro changeLimit_internal_macro
+;; param: limitId
+;; param: value
+;; param: period
+; modifier OnlyOwner
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 100
+; function changeLimit
+;; map.fetch
+;; push identifier limitId
+PUSH S2
+;; push identifier m_limits
+GETGLOB 14
+PUSHINT 64
+DICTUGET
+NULLSWAPIFNOT
+PUSHCONT {
+	LDU 256
+	LDU 32
+	LDU 8
+	LDU 256
+	PLDU 32
+	TUPLE 5
+}
+IF
+;; decl: m_limit
+;; push identifier m_limit
+DUP
+ISNULL
+THROWIF 103
+;; push identifier m_limit
+BLKPUSH 2, 0
+ISNULL
+THROWIF 63
+;; decl: lim
+;; push identifier value
+;; push identifier period
+OVER2
+;; get member ltype
+;; push identifier lim
+PUSH S2
+INDEX 2
+;; param: value
+;; param: period
+;; param: ltype
+; function _validate
+;; push identifier value
+PUSH S2
+GTINT 0
+THROWIFNOT 102
+;; if
+;; push identifier ltype
+DUP
+EQINT 1
+PUSHCONT {
+	;; push identifier period
+	PUSH S1
+	GTINT 0
+	;; short-circuiting &&
+	DUP
+	PUSHCONT {
+		DROP
+		;; push identifier period
+		PUSH S1
+		;; <=
+		;; push identifier MAX_LIMIT_PERIOD
+		GETGLOB 13
+		LEQ
+	}
+	IF
+	THROWIFNOT 104
+}
+PUSHCONT {
+	;; push identifier period
+	PUSH S1
+	THROWIF 104
+}
+IFELSE
+;; end if
+;; push identifier m_limitCount
+;; <
+;; push identifier MAX_LIMIT_COUNT
+; end function _validate
+BLKDROP 3
+GETGLOB 15
+GETGLOB 11
+LESS
+THROWIFNOT 105
+ACCEPT
+; expValue
+; end expValue
+;; push identifier value
+; colValue
+PUSH S3
+SETINDEX 0
+; end colValue
+; expValue
+; end expValue
+;; push identifier period
+; colValue
+PUSH S2
+SETINDEX 1
+; end colValue
+; expValue
+;; fetch m_limits
+;; push identifier limitId
+PUSH S4
+GETGLOB 14
+; end expValue
+;; push identifier lim
+PUSH S2
+; colValue
+UNTUPLE 5
+REVERSE 5, 0
+NEWC
+STU 256
+STU 32
+STU 8
+STU 256
+STU 32
+ROTREV
+PUSHINT 64
+DICTUSETB
+SETGLOB 14
+; end colValue
+; end function changeLimit
+; end modifier OnlyOwner
+BLKDROP 5
+
+.macro deleteLimit
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode limitId
+LDU 64
+ENDS
+;; param: limitId
+CALLREF {
+	CALL $deleteLimit_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	deleteLimit_internal
+.type	deleteLimit_internal, @function
+CALL $deleteLimit_internal_macro$
+
+.macro deleteLimit_internal_macro
+;; param: limitId
+; modifier OnlyOwner
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 100
+; function deleteLimit
+ACCEPT
+;; map.fetch
+;; push identifier limitId
+DUP
+;; push identifier m_limits
+GETGLOB 14
+PUSHINT 64
+DICTUGET
+NULLSWAPIFNOT
+PUSHCONT {
+	LDU 256
+	LDU 32
+	LDU 8
+	LDU 256
+	PLDU 32
+	TUPLE 5
+}
+IF
+;; decl: m_limit
+;; if
+;; push identifier m_limit
+DUP
+ISNULL
+PUSHCONT {
+	;; delete
+	; expValue
+	;; fetch m_limits
+	;; push identifier limitId
+	PUSH S1
+	; end expValue
+	; colValue
+	GETGLOB 14
+	PUSHINT 64
+	DICTUDEL
+	DROP
+	SETGLOB 14
+	; end colValue
+	; expValue
+	;; fetch m_limitCount
+	; end expValue
+	GETGLOB 15
+	DEC
+	UFITS 8
+	; colValue
+	SETGLOB 15
+	; end colValue
+}
+IFNOT
+;; end if
+; end function deleteLimit
+; end modifier OnlyOwner
+DROP2
+
+.macro getLimit
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode limitId
+LDU 64
+ENDS
+;; param: limitId
+CALLREF {
+	CALL $getLimit_internal_macro$
+}
+;; emitting 1 value(s)
+PUSH S1
+EQINT -1
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x00000000000000000000000032ddd3262_
+	STSLICER
+	PUSH S1
+	UNTUPLE 5
+	BLKSWAP 1, 5
+	PUSH S5
+	STUR 256
+	PUSH S4
+	STUR 32
+	PUSH S3
+	STUR 8
+	PUSH S2
+	STUR 256
+	PUSH S1
+	STUR 32
+	BLKDROP2 5, 1
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+DROP
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	getLimit_internal
+.type	getLimit_internal, @function
+CALL $getLimit_internal_macro$
+
+.macro getLimit_internal_macro
+;; param: limitId
+; function getLimit
+;; return
+;; index
+;; push identifier limitId
+DUP
+;; push identifier m_limits
+GETGLOB 14
+PUSHINT 64
+DICTUGET
+PUSHCONT {
+	LDU 256
+	LDU 32
+	LDU 8
+	LDU 256
+	PLDU 32
+	TUPLE 5
+}
+PUSHCONT {
+	PUSHINT 0
+	BLKPUSH 4, 0
+	TUPLE 5
+}
+IFELSE
+; end function getLimit
+NIP
+
+.macro getLimitCount
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+ENDS
+CALLREF {
+	CALL $getLimitCount_internal_macro$
+}
+;; emitting 1 value(s)
+PUSH S1
+EQINT -1
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x0000000000000000000000003d6e415ee_
+	STSLICER
+	PUSH S1
+	STUR 64
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+DROP
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	getLimitCount_internal
+.type	getLimitCount_internal, @function
+CALL $getLimitCount_internal_macro$
+
+.macro getLimitCount_internal_macro
+; function getLimitCount
+;; return
+;; push identifier m_limitCount
+GETGLOB 15
+; end function getLimitCount
+
+.macro getLimits
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+ENDS
+CALLREF {
+	CALL $getLimits_internal_macro$
+}
+;; emitting 1 value(s)
+PUSH S1
+EQINT -1
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x00000000000000000000000034cd3ff42_
+	STSLICER
+	PUSH S1
+	UNPAIR
+	XCHG s2
+	STU 32
+	STDICT
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+DROP
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	getLimits_internal
+.type	getLimits_internal, @function
+CALL $getLimits_internal_macro$
+
+.macro getLimits_internal_macro
+;; ret param: limits
+PUSHINT 0
+NEWDICT
+PAIR
+; function getLimits
+;; push identifier m_limits
+GETGLOB 14
+;; decl: tmpLimits
+;; map.min
+;; push identifier tmpLimits
+DUP
+PUSHINT 64
+DICTUMIN
+NULLSWAPIFNOT
+PUSHCONT {
+	SWAP
+	LDU 256
+	LDU 32
+	LDU 8
+	LDU 256
+	PLDU 32
+	TUPLE 5
+	TUPLE 2
+}
+IF
+;; decl: tmpLimit
+; while
+PUSHCONT {
+	;; push identifier tmpLimit
+	DUP
+	ISNULL
+	NOT
+}
+PUSHCONT {
+	;; push identifier tmpLimit
+	BLKPUSH 2, 0
+	ISNULL
+	THROWIF 63
+	UNTUPLE 2
+	;; decl: id
+	;; decl: lim
+	; expValue
+	; end expValue
+	;; push identifier lim
+	PUSH2 S4, S0
+	;; array.push(..)
+	UNTUPLE 5
+	REVERSE 5, 0
+	NEWC
+	STU 256
+	STU 32
+	STU 8
+	STU 256
+	STU 32
+	SWAP
+	UNPAIR
+	PUSH S1
+	INC
+	XCHG s3
+	ROTREV
+	PUSHINT 32
+	DICTUSETB
+	PAIR
+	; colValue
+	POP S5
+	; end colValue
+	;; map.next
+	;; push identifier id
+	;; push identifier tmpLimits
+	PUSH2 S1, S3
+	PUSHINT 64
+	DICTUGETNEXT
+	NULLSWAPIFNOT
+	PUSHCONT {
+		SWAP
+		LDU 256
+		LDU 32
+		LDU 8
+		LDU 256
+		PLDU 32
+		TUPLE 5
+		TUPLE 2
+	}
+	IF
+	; expValue
+	; end expValue
+	; colValue
+	POP S3
+	; end colValue
+	DROP2
+}
+WHILE
+; end while
+DROP2
+; end function getLimits
+
+.globl	_newLimit_internal
+.type	_newLimit_internal, @function
+CALL $_newLimit_internal_macro$
+
+.macro _newLimit_internal_macro
+;; param: value
+;; param: period
+;; param: ltype
+; function _newLimit
+;; push identifier m_limitseqNo
+GETGLOB 16
+;; decl: limitId
+; expValue
+;; fetch m_limitseqNo
+; end expValue
+GETGLOB 16
+INC
+UFITS 64
+; colValue
+SETGLOB 16
+; end colValue
+;; push identifier value
+;; push identifier period
+;; push identifier ltype
+BLKPUSH 3, 3
+PUSHINT 0
+PUSHINT 0
+TUPLE 5
+; expValue
+;; fetch m_limits
+;; push identifier limitId
+PUSH S1
+GETGLOB 14
+; end expValue
+ROT
+; colValue
+UNTUPLE 5
+REVERSE 5, 0
+NEWC
+STU 256
+STU 32
+STU 8
+STU 256
+STU 32
+ROTREV
+PUSHINT 64
+DICTUSETB
+SETGLOB 14
+; end colValue
+; expValue
+;; fetch m_limitCount
+; end expValue
+GETGLOB 15
+INC
+UFITS 8
+; colValue
+SETGLOB 15
+; end colValue
+;; return
+;; push identifier limitId
+; end function _newLimit
+BLKDROP2 3, 1
+
+.macro receive_macro
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; function receive
+; end function receive
+CALLREF {
+	CALL $c7_to_c4$
+}
+
+.macro setSubscriptionAccount
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode addr
+LDMSGADDR
+ENDS
+;; param: addr
+CALLREF {
+	CALL $setSubscriptionAccount_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	setSubscriptionAccount_internal
+.type	setSubscriptionAccount_internal, @function
+CALL $setSubscriptionAccount_internal_macro$
+
+.macro setSubscriptionAccount_internal_macro
+;; param: addr
+; function setSubscriptionAccount
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 100
+ACCEPT
+; expValue
+; end expValue
+;; push identifier addr
+; colValue
+; end colValue
+; end function setSubscriptionAccount
+SETGLOB 10
+
+.macro getSubscriptionAccount
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+ENDS
+CALLREF {
+	CALL $getSubscriptionAccount_internal_macro$
+}
+;; emitting 1 value(s)
+PUSH S1
+EQINT -1
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x00000000000000000000000025a809f06_
+	STSLICER
+	PUSH S1
+	STSLICER
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+DROP
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	getSubscriptionAccount_internal
+.type	getSubscriptionAccount_internal, @function
+CALL $getSubscriptionAccount_internal_macro$
+
+.macro getSubscriptionAccount_internal_macro
+; function getSubscriptionAccount
+;; return
+;; push identifier subscription
+GETGLOB 10
+; end function getSubscriptionAccount
+
+.globl	Wallet_sendTransaction
+.type	Wallet_sendTransaction, @function
+CALL $Wallet_sendTransaction_macro$
+
+.macro Wallet_sendTransaction_macro
+;; param: dest
+;; param: value
+;; param: bounce
+; modifier checkOwnerAndAccept
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 100
+ACCEPT
+; function sendTransaction
+;; push identifier value
+PUSH S1
+GTINT 0
+;; short-circuiting &&
+DUP
+PUSHCONT {
+	DROP
+	;; push identifier value
+	PUSH S1
+	;; <
+	;; get member balance
+	GETPARAM 7
+	INDEX 0
+	LESS
+}
+IF
+THROWIFNOT 101
+;; transfer()
+;; push identifier value
+;; push identifier dest
+;; push identifier bounce
+PUSH3 S1, S2, S0
+NEWC
+STSLICECONST x6_
+STI 1
+PUSHINT 3
+STZEROES
+STSLICE
+SWAP
+STGRAMS
+PUSHINT 107
+STZEROES
+ENDC
+PUSHINT 3
+SENDRAWMSG
+; end function sendTransaction
+; end modifier checkOwnerAndAccept
+BLKDROP 3
+
+.macro c7_to_c4
+GETGLOB 2
+NEWC
+STU 256
+GETGLOB 3
+STUR 64
+GETGLOB 6
+STUR 1
+GETGLOB 10
+GETGLOB 11
+GETGLOB 12
+GETGLOB 13
+GETGLOB 14
+GETGLOB 15
+GETGLOB 16
+REVERSE 8, 0
+STSLICE
+STU 8
+STU 32
+STU 32
+STDICT
+STU 8
+STU 64
+ENDC
+POP C4
+
+.macro c4_to_c7
+PUSHROOT
+CTOS        ; c4
+LDU 256      ; pubkey c4
+LDU 64      ; pubkey timestamp c4
+LDU 1       ; pubkey [timestamp] constructor_flag memory
+LDMSGADDR
+LDU 8
+LDU 32
+LDU 32
+LDDICT
+LDU 8
+PLDU 64
+SETGLOB 16
+SETGLOB 15
+SETGLOB 14
+SETGLOB 13
+SETGLOB 12
+SETGLOB 11
+SETGLOB 10
+TRUE
+SETGLOB 1   ; pubkey [timestamp] constructor_flag
+SETGLOB 6   ; pubkey [timestamp]
+SETGLOB 3   ; D
+SETGLOB 2
+
+.macro c4_to_c7_with_init_storage
+PUSHROOT
+CTOS        ; c4
+DUP        ; c4 c4
+SBITS      ; c4 bits
+GTINT 1    ; c4 bits>1
+PUSHCONT {
+	LDU 256      ; pubkey c4
+	LDU 64      ; pubkey timestamp c4
+	LDU 1       ; pubkey [timestamp] constructor_flag memory
+	LDMSGADDR
+	LDU 8
+	LDU 32
+	LDU 32
+	LDDICT
+	LDU 8
+	PLDU 64
+	SETGLOB 16
+	SETGLOB 15
+	SETGLOB 14
+	SETGLOB 13
+	SETGLOB 12
+	SETGLOB 11
+	SETGLOB 10
+	TRUE
+	SETGLOB 1   ; pubkey [timestamp] constructor_flag
+	SETGLOB 6   ; pubkey [timestamp]
+	SETGLOB 3   ; D
+	SETGLOB 2
+}
+PUSHCONT {
+	PLDDICT   ; D
+	; init subscription
+	PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+	SETGLOB 10
+	; init MAX_LIMIT_COUNT
+	PUSHINT 0
+	SETGLOB 11
+	; init SECONDS_IN_DAY
+	PUSHINT 0
+	SETGLOB 12
+	; init MAX_LIMIT_PERIOD
+	PUSHINT 0
+	SETGLOB 13
+	; init m_limits
+	NEWDICT
+	SETGLOB 14
+	; init m_limitCount
+	PUSHINT 0
+	SETGLOB 15
+	; init m_limitseqNo
+	PUSHINT 0
+	SETGLOB 16
+	; set contract pubkey
+	PUSHINT 0
+	SWAP
+	PUSHINT 64
+	DICTUGET
+	THROWIFNOT 61
+	PLDU 256
+	SETGLOB 2
+	PUSHINT 0 ; timestamp
+	SETGLOB 3
+	PUSHINT 0 ; constructor_flag
+	SETGLOB 6
+	TRUE
+	SETGLOB 1
+	;; init state var: MAX_LIMIT_COUNT
+	PUSHINT 5
+	SETGLOB 11
+	;; init state var: SECONDS_IN_DAY
+	PUSHINT 86400
+	SETGLOB 12
+	;; init state var: MAX_LIMIT_PERIOD
+	PUSHINT 365
+	SETGLOB 13
+	;; init state var: m_limitCount
+	PUSHINT 0
+	SETGLOB 15
+	;; init state var: m_limitseqNo
+	PUSHINT 0
+	SETGLOB 16
+}
+IFELSE
+
+.internal-alias :main_internal, 0
+.internal :main_internal
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Function: main_internal
+;; param: contract_balance
+;; param: msg_balance
+;; param: int_msg_info
+;; param: msg_body_slice
+;; param: transaction_type
+PUSH S2
+CTOS
+LDU 4       ; bounced tail
+LDMSGADDR   ; bounced src tail
+DROP
+SETGLOB 9
+MODPOW2 1
+IFRET
+PUSH S1    ; body
+SEMPTY     ; isEmpty
+IFRET
+PUSH S1 ; body
+LDU 32  ; funcId body'
+PUSH S1 ; funcId body' funcId
+IFNOTRET
+SWAP
+CALLREF {
+	CALL $public_function_selector$
+}
+GETGLOB 7
+ISNULL
+THROWIF 60
+
+.internal-alias :main_external, -1
+.internal :main_external
+PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+SETGLOB 9
+PUSH S1
+CALLREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+LDU 1 ; haveSign msgSlice
+SWAP
+PUSHCONT {
+	PUSHINT 512
+	LDSLICEX ; signatureSlice msgSlice
+	DUP      ; signatureSlice msgSlice msgSlice
+	HASHSU   ; signatureSlice msgSlice hashMsgSlice
+	ROT
+	GETGLOB 2
+	DUP
+	SETGLOB 5
+	CHKSIGNU      ; msgSlice isSigned
+	THROWIFNOT 40 ; msgSlice
+}
+IF
+LDU 64                         ; timestamp msgSlice
+SWAP                           ; msgSlice timestamp
+CALL $replay_protection_macro$ ; msgSlice
+LDU 32  ; expireAt msgSlice
+SWAP    ; msgSlice expireAt
+NOW     ; msgSlice expireAt now
+GREATER ; msgSlice expireAt>now
+THROWIFNOT 57
+LDU  32 ; funcId body
+SWAP    ; body funcId
+CALLREF {
+	CALL $public_function_selector$
+}
+GETGLOB 7
+ISNULL
+THROWIF 60
+
+.macro public_function_selector
+DUP
+PUSHINT 603123124
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 313445917
+	EQUAL
+	IFJMPREF {
+		CALL $deleteLimit$
+	}
+	DUP
+	PUSHINT 379594689
+	EQUAL
+	IFJMPREF {
+		CALL $getSubscriptionAccount$
+	}
+	DUP
+	PUSHINT 603123124
+	EQUAL
+	IFJMPREF {
+		CALL $createOperationLimit$
+	}
+}
+IFJMP
+DUP
+PUSHINT 1266109592
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 828307765
+	EQUAL
+	IFJMPREF {
+		CALL $sendTransaction$
+	}
+	DUP
+	PUSHINT 1058204319
+	EQUAL
+	IFJMPREF {
+		CALL $changeLimit$
+	}
+	DUP
+	PUSHINT 1266109592
+	EQUAL
+	IFJMPREF {
+		CALL $getLimit$
+	}
+}
+IFJMP
+DUP
+PUSHINT 1807678216
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 1395982288
+	EQUAL
+	IFJMPREF {
+		CALL $getLimits$
+	}
+	DUP
+	PUSHINT 1756716863
+	EQUAL
+	IFJMPREF {
+		CALL $constructor$
+	}
+	DUP
+	PUSHINT 1807678216
+	EQUAL
+	IFJMPREF {
+		CALL $createArbitraryLimit$
+	}
+}
+IFJMP
+DUP
+PUSHINT 2002334446
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 1975059835
+	EQUAL
+	IFJMPREF {
+		CALL $getLimitCount$
+	}
+	DUP
+	PUSHINT 2002334446
+	EQUAL
+	IFJMPREF {
+		CALL $setSubscriptionAccount$
+	}
+}
+IFJMP

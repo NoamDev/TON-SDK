@@ -3,6 +3,22 @@
 	"header": ["time", "expire"],
 	"functions": [
 		{
+			"name": "setSubscriptionAccount",
+			"inputs": [
+				{"name":"addr","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getSubscriptionAccount",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
 			"name": "sendTransaction",
 			"inputs": [
 				{"name":"dest","type":"address"},

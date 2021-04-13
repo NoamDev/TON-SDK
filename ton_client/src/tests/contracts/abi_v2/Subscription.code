@@ -1,0 +1,781 @@
+.macro constructor
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+;; constructor protection
+GETGLOB 6
+THROWIF 51
+PUSHINT 1
+SETGLOB 6
+;; end constructor protection
+; Decode input parameters
+; Decode wallet
+LDMSGADDR
+ENDS
+;; param: wallet
+; constructor SubscriptionContract
+; expValue
+; end expValue
+;; push identifier wallet
+; colValue
+; end colValue
+; end constructor SubscriptionContract
+SETGLOB 10
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro getWallet
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+ENDS
+CALLREF {
+	CALL $getWallet_internal_macro$
+}
+;; emitting 1 value(s)
+PUSH S1
+EQINT -1
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x00000000000000000000000036686668e_
+	STSLICER
+	PUSH S1
+	STSLICER
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+DROP
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	getWallet_internal
+.type	getWallet_internal, @function
+CALL $getWallet_internal_macro$
+
+.macro getWallet_internal_macro
+; function getWallet
+;; return
+;; push identifier mywallet
+GETGLOB 10
+; end function getWallet
+
+.macro getSubscription
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode subscriptionId
+LDU 256
+ENDS
+;; param: subscriptionId
+CALLREF {
+	CALL $getSubscription_internal_macro$
+}
+;; emitting 1 value(s)
+PUSH S1
+EQINT -1
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHINT 97
+	STZEROES
+	STSLICECONST 1
+	NEWC
+	STSLICECONST xd6535df7
+	PUSH S2
+	UNTUPLE 6
+	BLKSWAP 1, 6
+	PUSH S6
+	STUR 256
+	PUSH S5
+	STSLICER
+	PUSH S4
+	STUR 64
+	PUSH S3
+	STUR 32
+	PUSH S2
+	STUR 32
+	PUSH S1
+	STUR 8
+	BLKDROP2 6, 1
+	STBREFR
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+DROP
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	getSubscription_internal
+.type	getSubscription_internal, @function
+CALL $getSubscription_internal_macro$
+
+.macro getSubscription_internal_macro
+;; param: subscriptionId
+; function getSubscription
+;; return
+;; index
+;; push identifier subscriptionId
+DUP
+;; push identifier subscriptions
+GETGLOB 11
+PUSHINT 256
+DICTUGET
+PUSHCONT {
+	LDU 256
+	LDMSGADDR
+	LDU 64
+	LDU 32
+	LDU 32
+	PLDU 8
+	TUPLE 6
+}
+PUSHCONT {
+	PUSHINT 0
+	PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+	PUSHINT 0
+	BLKPUSH 3, 0
+	TUPLE 6
+}
+IFELSE
+; end function getSubscription
+NIP
+
+.macro subscribe
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode subscriptionId
+LDU 256
+; Decode pubkey
+LDUQ 256
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDU 256
+}
+IFNOT
+; Decode to
+LDMSGADDRQ
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDMSGADDR
+}
+IFNOT
+; Decode value
+LDUQ 64
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDU 64
+}
+IFNOT
+; Decode period
+LDUQ 32
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDU 32
+}
+IFNOT
+ENDS
+;; param: subscriptionId
+;; param: pubkey
+;; param: to
+;; param: value
+;; param: period
+CALLREF {
+	CALL $subscribe_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	subscribe_internal
+.type	subscribe_internal, @function
+CALL $subscribe_internal_macro$
+
+.macro subscribe_internal_macro
+;; param: subscriptionId
+;; param: pubkey
+;; param: to
+;; param: value
+;; param: period
+; modifier onlyOwner
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 100
+; function subscribe
+;; push identifier subscriptionId
+PUSH S4
+NEQINT 0
+;; short-circuiting &&
+DUP
+PUSHCONT {
+	DROP
+	;; push identifier value
+	PUSH S1
+	GTINT 0
+	;; short-circuiting &&
+	DUP
+	PUSHCONT {
+		DROP
+		;; push identifier period
+		DUP
+		GTINT 0
+	}
+	IF
+}
+IF
+THROWIFNOT 101
+ACCEPT
+;; push identifier pubkey
+;; push identifier to
+;; push identifier value
+;; push identifier period
+BLKPUSH 4, 3
+PUSHINT 0
+PUSHINT 1
+TUPLE 6
+; expValue
+;; fetch subscriptions
+;; push identifier subscriptionId
+PUSH S5
+GETGLOB 11
+; end expValue
+ROT
+; colValue
+UNTUPLE 6
+REVERSE 6, 0
+NEWC
+STU 256
+STSLICE
+STU 64
+STU 32
+STU 32
+STU 8
+ROTREV
+PUSHINT 256
+DICTUSETB
+SETGLOB 11
+; end colValue
+; end function subscribe
+; end modifier onlyOwner
+BLKDROP 5
+
+.macro cancel
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode subscriptionId
+LDU 256
+ENDS
+;; param: subscriptionId
+CALLREF {
+	CALL $cancel_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	cancel_internal
+.type	cancel_internal, @function
+CALL $cancel_internal_macro$
+
+.macro cancel_internal_macro
+;; param: subscriptionId
+; modifier onlyOwner
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 100
+; function cancel
+;; get member status
+;; index
+;; push identifier subscriptionId
+DUP
+;; push identifier subscriptions
+GETGLOB 11
+PUSHINT 256
+DICTUGET
+PUSHCONT {
+	NEWC
+	PUSHINT 256
+	STZEROES
+	PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+	STSLICER
+	PUSHINT 136
+	STZEROES
+	ENDC
+	CTOS
+}
+IFNOT
+LDSLICE 256
+NIP
+LDMSGADDR
+NIP
+LDSLICE 128
+NIP
+PLDU 8
+THROWIFNOT 101
+ACCEPT
+;; delete
+; expValue
+;; fetch subscriptions
+;; push identifier subscriptionId
+; end expValue
+; colValue
+; end colValue
+; end function cancel
+; end modifier onlyOwner
+GETGLOB 11
+PUSHINT 256
+DICTUDEL
+DROP
+SETGLOB 11
+
+.macro executeSubscription
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode subscriptionId
+LDU 256
+ENDS
+;; param: subscriptionId
+CALLREF {
+	CALL $executeSubscription_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	executeSubscription_internal
+.type	executeSubscription_internal, @function
+CALL $executeSubscription_internal_macro$
+
+.macro executeSubscription_internal_macro
+;; param: subscriptionId
+; function executeSubscription
+;; index
+;; push identifier subscriptionId
+DUP
+;; push identifier subscriptions
+GETGLOB 11
+PUSHINT 256
+DICTUGET
+PUSHCONT {
+	LDU 256
+	LDMSGADDR
+	LDU 64
+	LDU 32
+	LDU 32
+	PLDU 8
+	TUPLE 6
+}
+PUSHCONT {
+	PUSHINT 0
+	PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+	PUSHINT 0
+	BLKPUSH 3, 0
+	TUPLE 6
+}
+IFELSE
+;; decl: subscr
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+;; get member pubkey
+;; push identifier subscr
+PUSH S1
+INDEX 0
+EQUAL
+THROWIFNOT 102
+;; get member status
+;; push identifier subscr
+DUP
+INDEX 5
+THROWIFNOT 101
+;; if
+;; push identifier now
+NOW
+;; >
+;; get member start
+;; push identifier subscr
+PUSH S1
+INDEX 4
+;; +
+;; get member period
+;; push identifier subscr
+PUSH S2
+INDEX 3
+ADD
+UFITS 32
+GREATER
+PUSHCONT {
+	;; push identifier now
+	;; uint32
+	; expValue
+	; end expValue
+	; colValue
+	NOW
+	SETINDEX 4
+	; end colValue
+}
+PUSHCONT {
+	;; get member status
+	;; push identifier subscr
+	DUP
+	INDEX 5
+	NEQINT 2
+	THROWIFNOT 103
+}
+IFELSE
+;; end if
+ACCEPT
+;; transfer()
+;; get member value
+;; push identifier subscr
+DUP
+INDEX 2
+;; get member to
+;; push identifier subscr
+PUSH S1
+INDEX 1
+NEWC
+STSLICECONST x62_
+STSLICE
+SWAP
+STGRAMS
+PUSHINT 107
+STZEROES
+ENDC
+PUSHINT 0
+SENDRAWMSG
+; expValue
+; end expValue
+; colValue
+PUSHINT 2
+SETINDEX 5
+; end colValue
+; expValue
+;; fetch subscriptions
+;; push identifier subscriptionId
+PUSH S1
+GETGLOB 11
+; end expValue
+;; push identifier subscr
+PUSH S2
+; colValue
+UNTUPLE 6
+REVERSE 6, 0
+NEWC
+STU 256
+STSLICE
+STU 64
+STU 32
+STU 32
+STU 8
+ROTREV
+PUSHINT 256
+DICTUSETB
+SETGLOB 11
+; end colValue
+; end function executeSubscription
+DROP2
+
+.macro c7_to_c4
+GETGLOB 2
+NEWC
+STU 256
+GETGLOB 3
+STUR 64
+GETGLOB 6
+STUR 1
+GETGLOB 10
+GETGLOB 11
+GETGLOB 12
+REVERSE 4, 0
+STSLICE
+STDICT
+STU 256
+ENDC
+POP C4
+
+.macro c4_to_c7
+PUSHROOT
+CTOS        ; c4
+LDU 256      ; pubkey c4
+LDU 64      ; pubkey timestamp c4
+LDU 1       ; pubkey [timestamp] constructor_flag memory
+LDMSGADDR
+LDDICT
+PLDU 256
+SETGLOB 12
+SETGLOB 11
+SETGLOB 10
+TRUE
+SETGLOB 1   ; pubkey [timestamp] constructor_flag
+SETGLOB 6   ; pubkey [timestamp]
+SETGLOB 3   ; D
+SETGLOB 2
+
+.macro c4_to_c7_with_init_storage
+PUSHROOT
+CTOS        ; c4
+DUP        ; c4 c4
+SBITS      ; c4 bits
+GTINT 1    ; c4 bits>1
+PUSHCONT {
+	LDU 256      ; pubkey c4
+	LDU 64      ; pubkey timestamp c4
+	LDU 1       ; pubkey [timestamp] constructor_flag memory
+	LDMSGADDR
+	LDDICT
+	PLDU 256
+	SETGLOB 12
+	SETGLOB 11
+	SETGLOB 10
+	TRUE
+	SETGLOB 1   ; pubkey [timestamp] constructor_flag
+	SETGLOB 6   ; pubkey [timestamp]
+	SETGLOB 3   ; D
+	SETGLOB 2
+}
+PUSHCONT {
+	PLDDICT   ; D
+	; init mywallet
+	PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+	SETGLOB 10
+	; init subscriptions
+	NEWDICT
+	SETGLOB 11
+	; init _owner
+	PUSHINT 0
+	SETGLOB 12
+	; set contract pubkey
+	PUSHINT 0
+	SWAP
+	PUSHINT 64
+	DICTUGET
+	THROWIFNOT 61
+	PLDU 256
+	SETGLOB 2
+	PUSHINT 0 ; timestamp
+	SETGLOB 3
+	PUSHINT 0 ; constructor_flag
+	SETGLOB 6
+	TRUE
+	SETGLOB 1
+}
+IFELSE
+
+.internal-alias :main_internal, 0
+.internal :main_internal
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Function: main_internal
+;; param: contract_balance
+;; param: msg_balance
+;; param: int_msg_info
+;; param: msg_body_slice
+;; param: transaction_type
+PUSH S2
+CTOS
+PLDU 4
+MODPOW2 1
+IFRET
+PUSH S1    ; body
+SEMPTY     ; isEmpty
+IFRET
+PUSH S1 ; body
+LDU 32  ; funcId body'
+PUSH S1 ; funcId body' funcId
+IFNOTRET
+SWAP
+CALLREF {
+	CALL $public_function_selector$
+}
+GETGLOB 7
+ISNULL
+THROWIF 60
+
+.internal-alias :main_external, -1
+.internal :main_external
+PUSH S1
+CALLREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+LDU 1 ; haveSign msgSlice
+SWAP
+PUSHCONT {
+	PUSHINT 512
+	LDSLICEX ; signatureSlice msgSlice
+	DUP      ; signatureSlice msgSlice msgSlice
+	HASHSU   ; signatureSlice msgSlice hashMsgSlice
+	ROT
+	GETGLOB 2
+	DUP
+	SETGLOB 5
+	CHKSIGNU      ; msgSlice isSigned
+	THROWIFNOT 40 ; msgSlice
+}
+IF
+LDU 64                         ; timestamp msgSlice
+SWAP                           ; msgSlice timestamp
+CALL $replay_protection_macro$ ; msgSlice
+LDU 32  ; expireAt msgSlice
+SWAP    ; msgSlice expireAt
+NOW     ; msgSlice expireAt now
+GREATER ; msgSlice expireAt>now
+THROWIFNOT 57
+LDU  32 ; funcId body
+SWAP    ; body funcId
+CALLREF {
+	CALL $public_function_selector$
+}
+GETGLOB 7
+ISNULL
+THROWIF 60
+
+.macro public_function_selector
+DUP
+PUSHINT 1145010566
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 611859593
+	EQUAL
+	IFJMPREF {
+		CALL $executeSubscription$
+	}
+	DUP
+	PUSHINT 1145010566
+	EQUAL
+	IFJMPREF {
+		CALL $subscribe$
+	}
+}
+IFJMP
+DUP
+PUSHINT 1448304119
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 1196840156
+	EQUAL
+	IFJMPREF {
+		CALL $constructor$
+	}
+	DUP
+	PUSHINT 1448304119
+	EQUAL
+	IFJMPREF {
+		CALL $getSubscription$
+	}
+}
+IFJMP
+DUP
+PUSHINT 1726230101
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 1503762851
+	EQUAL
+	IFJMPREF {
+		CALL $getWallet$
+	}
+	DUP
+	PUSHINT 1726230101
+	EQUAL
+	IFJMPREF {
+		CALL $cancel$
+	}
+}
+IFJMP
