@@ -2,11 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.21.2] – 2021-08-25
+
+### Fixed
+- Updated crypto libraries in order to fix building.
+
+## [1.21.1] – 2021-08-24
+
+### Fixed
+- http errors were not processed as network errors and didn't lead to endpoint reconnect and request retry
+
 ## [1.21.0] – 2021-08-18
 
 ### New
 - `crypto.create_encryption_box` function for creating SDK-defined encryption boxes. First supported 
 algorithm - AES with CBC mode.
+- **Debot module**:
+    - Аdded public `prepare_ext_in_message` function.
 
 ### Fixed
 - `tvm.run_executor` did not work when SDK is configured to use TONOS SE, because of incomplete default

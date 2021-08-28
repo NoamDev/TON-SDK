@@ -17,7 +17,7 @@ mod base64_interface;
 mod hex_interface;
 mod json_interface;
 mod browser;
-mod calltype;
+pub mod calltype;
 mod context;
 mod debot_abi;
 mod dengine;
@@ -34,6 +34,9 @@ mod sdk_interface;
 mod tests;
 #[cfg(test)]
 mod tests_interfaces;
+
+#[cfg(not(feature = "wasm"))]
+pub use calltype::prepare_ext_in_message;
 
 pub use action::DAction;
 pub use activity::{DebotActivity, Spending};
