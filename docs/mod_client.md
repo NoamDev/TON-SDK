@@ -154,7 +154,8 @@ enum ClientErrorCode {
     CanNotParseRequestResult = 30,
     UnexpectedCallbackResponse = 31,
     CanNotParseNumber = 32,
-    InternalError = 33
+    InternalError = 33,
+    InvalidHandle = 34
 }
 ```
 One of the following value:
@@ -192,6 +193,7 @@ One of the following value:
 - `UnexpectedCallbackResponse = 31`
 - `CanNotParseNumber = 32`
 - `InternalError = 33`
+- `InvalidHandle = 34`
 
 
 ## ClientError
@@ -237,6 +239,7 @@ type NetworkConfig = {
     sending_endpoint_count?: number,
     latency_detection_interval?: number,
     max_latency?: number,
+    query_timeout?: number,
     access_key?: string
 }
 ```
@@ -262,6 +265,8 @@ type NetworkConfig = {
 <br>Library periodically checks the current endpoint for blockchain data syncronization latency.<br>If the latency (time-lag) is less then `NetworkConfig.max_latency`<br>then library selects another endpoint.<br><br>Must be specified in milliseconds. Default is 60000 (1 min).
 - `max_latency`?: _number_ – Maximum value for the endpoint's blockchain data syncronization latency (time-lag). Library periodically checks the current endpoint for blockchain data syncronization latency. If the latency (time-lag) is less then `NetworkConfig.max_latency` then library selects another endpoint.
 <br>Must be specified in milliseconds. Default is 60000 (1 min).
+- `query_timeout`?: _number_ – Default timeout for http requests.
+<br>Is is used when no timeout specified for the request to limit the answer waiting time. If no answer received during the timeout requests ends with<br>error.<br><br>Must be specified in milliseconds. Default is 60000 (1 min).
 - `access_key`?: _string_ – Access key to GraphQL API.
 <br>At the moment is not used in production.
 

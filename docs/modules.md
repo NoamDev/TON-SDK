@@ -23,9 +23,9 @@ Where:
 
 ## [crypto](mod_crypto.md) – Crypto functions.
 
-[factorize](mod_crypto.md#factorize) – Performs prime factorization – decomposition of a composite number into a product of smaller prime integers (factors). See [https://en.wikipedia.org/wiki/Integer_factorization]
+[factorize](mod_crypto.md#factorize) – Integer factorization
 
-[modular_power](mod_crypto.md#modular_power) – Performs modular exponentiation for big integers (`base`^`exponent` mod `modulus`). See [https://en.wikipedia.org/wiki/Modular_exponentiation]
+[modular_power](mod_crypto.md#modular_power) – Modular exponentiation
 
 [ton_crc16](mod_crypto.md#ton_crc16) – Calculates CRC16 using TON algorithm.
 
@@ -43,7 +43,7 @@ Where:
 
 [sha512](mod_crypto.md#sha512) – Calculates SHA512 hash of the specified data.
 
-[scrypt](mod_crypto.md#scrypt) – Derives key from `password` and `key` using `scrypt` algorithm. See [https://en.wikipedia.org/wiki/Scrypt].
+[scrypt](mod_crypto.md#scrypt) – Perform `scrypt` encryption
 
 [nacl_sign_keypair_from_secret_key](mod_crypto.md#nacl_sign_keypair_from_secret_key) – Generates a key pair for signing from the secret key
 
@@ -69,13 +69,13 @@ Where:
 
 [mnemonic_words](mod_crypto.md#mnemonic_words) – Prints the list of words from the specified dictionary
 
-[mnemonic_from_random](mod_crypto.md#mnemonic_from_random) – Generates a random mnemonic from the specified dictionary and word count
+[mnemonic_from_random](mod_crypto.md#mnemonic_from_random) – Generates a random mnemonic
 
 [mnemonic_from_entropy](mod_crypto.md#mnemonic_from_entropy) – Generates mnemonic from pre-generated entropy
 
-[mnemonic_verify](mod_crypto.md#mnemonic_verify) – The phrase supplied will be checked for word length and validated according to the checksum specified in BIP0039.
+[mnemonic_verify](mod_crypto.md#mnemonic_verify) – Validates a mnemonic phrase
 
-[mnemonic_derive_sign_keys](mod_crypto.md#mnemonic_derive_sign_keys) – Validates the seed phrase, generates master key and then derives the key pair from the master key and the specified path
+[mnemonic_derive_sign_keys](mod_crypto.md#mnemonic_derive_sign_keys) – Derives a key pair for signing from the seed phrase
 
 [hdkey_xprv_from_mnemonic](mod_crypto.md#hdkey_xprv_from_mnemonic) – Generates an extended master private key that will be the root for all the derived keys
 
@@ -99,6 +99,16 @@ Where:
 
 [remove_signing_box](mod_crypto.md#remove_signing_box) – Removes signing box from SDK.
 
+[register_encryption_box](mod_crypto.md#register_encryption_box) – Register an application implemented encryption box.
+
+[remove_encryption_box](mod_crypto.md#remove_encryption_box) – Removes encryption box from SDK
+
+[encryption_box_get_info](mod_crypto.md#encryption_box_get_info) – Queries info from the given encryption box
+
+[encryption_box_encrypt](mod_crypto.md#encryption_box_encrypt) – Encrypts data using given encryption box
+
+[encryption_box_decrypt](mod_crypto.md#encryption_box_decrypt) – Decrypts data using given encryption box
+
 ## [abi](mod_abi.md) – Provides message encoding and decoding according to the ABI specification.
 
 [encode_message_body](mod_abi.md#encode_message_body) – Encodes message body according to ABI function call.
@@ -116,6 +126,8 @@ Where:
 [decode_message_body](mod_abi.md#decode_message_body) – Decodes message body using provided body BOC and ABI.
 
 [encode_account](mod_abi.md#encode_account) – Creates account state BOC
+
+[decode_account_data](mod_abi.md#decode_account_data) – Decodes account data using provided data BOC and ABI.
 
 ## [boc](mod_boc.md) – BOC manipulation module.
 
@@ -154,6 +166,8 @@ Where:
 ## [utils](mod_utils.md) – Misc utility Functions.
 
 [convert_address](mod_utils.md#convert_address) – Converts address from any TON format to any TON format
+
+[get_address_type](mod_utils.md#get_address_type) – Validates and returns the type of any TON address.
 
 [calc_storage_fee](mod_utils.md#calc_storage_fee) – Calculates storage fee for an account over a specified time period
 
@@ -200,6 +214,18 @@ Where:
 [query_counterparties](mod_net.md#query_counterparties) – Allows to query and paginate through the list of accounts that the specified account has interacted with, sorted by the time of the last internal message between accounts
 
 [query_transaction_tree](mod_net.md#query_transaction_tree) – Returns transactions tree for specific message.
+
+[create_block_iterator](mod_net.md#create_block_iterator) – Creates block iterator.
+
+[resume_block_iterator](mod_net.md#resume_block_iterator) – Resumes block iterator.
+
+[create_transaction_iterator](mod_net.md#create_transaction_iterator) – Creates transaction iterator.
+
+[resume_transaction_iterator](mod_net.md#resume_transaction_iterator) – Resumes transaction iterator.
+
+[iterator_next](mod_net.md#iterator_next) – Returns next available items.
+
+[remove_iterator](mod_net.md#remove_iterator) – Removes an iterator
 
 ## [debot](mod_debot.md) – [UNSTABLE](UNSTABLE.md) Module for working with debot.
 

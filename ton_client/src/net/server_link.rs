@@ -34,6 +34,22 @@ pub const MAX_TIMEOUT: u32 = std::i32::MAX as u32;
 pub const MIN_RESUME_TIMEOUT: u32 = 500;
 pub const MAX_RESUME_TIMEOUT: u32 = 3000;
 
+struct EndpointsReplacement<'a> {
+    url: &'a str,
+    aliases: &'a [&'a str],
+}
+
+const ENDPOINTS_REPLACE: [EndpointsReplacement; 2] = [
+    EndpointsReplacement {
+        url: "main.ton.dev",
+        aliases: &["main2.ton.dev", "main3.ton.dev", "main4.ton.dev"],
+    },
+    EndpointsReplacement {
+        url: "net.ton.dev",
+        aliases: &["net1.ton.dev", "net5.ton.dev"],
+    },
+];
+
 pub(crate) struct Subscription {
     pub unsubscribe: Pin<Box<dyn Future<Output = ()> + Send>>,
     pub data_stream: Pin<Box<dyn Stream<Item = ClientResult<Value>> + Send>>,
@@ -306,9 +322,33 @@ impl NetworkState {
 
 pub(crate) struct ServerLink {
     config: NetworkConfig,
-    client_env: Arc<ClientEnv>,
+    pub(crate) client_env: Arc<ClientEnv>,
     websocket_link: WebsocketLink,
     state: Arc<NetworkState>,
+}
+
+fn strip_endpoint(endpoint: &str) -> &str {
+    endpoint.trim_start_matches("https://").trim_start_matches("http://").trim_end_matches("/").trim_end_matches("\\")
+}
+
+fn replace_endpoints(mut endpoints: Vec<String>) -> Vec<String> {
+    for entry in &ENDPOINTS_REPLACE {
+        let len = endpoints.len();
+        endpoints.retain(|endpoint| strip_endpoint(&endpoint) != entry.url);
+        if len != endpoints.len() {
+            endpoints.extend_from_slice(&entry.aliases.iter().map(|val| (*val).to_owned()).collect::<Vec<String>>());
+        }
+    }
+
+    let mut result: Vec<String> = vec![];
+
+    for endpoint in endpoints {
+        if !result.iter().any(|val| strip_endpoint(val) == strip_endpoint(&endpoint)) {
+            result.push(endpoint);
+        }
+    }
+
+    result
 }
 
 impl ServerLink {
@@ -321,6 +361,7 @@ impl ServerLink {
         if endpoint_addresses.len() == 0 {
             return Err(crate::client::Error::net_module_not_init());
         }
+        let endpoint_addresses = replace_endpoints(endpoint_addresses);
 
         let state = Arc::new(NetworkState::new(
             client_env.clone(),
@@ -442,7 +483,6 @@ impl ServerLink {
                 current_endpoint = Some(self.state.get_query_endpoint().await?.clone());
                 current_endpoint.as_ref().unwrap()
             };
-
             let result = self
                 .client_env
                 .fetch(
@@ -450,7 +490,7 @@ impl ServerLink {
                     FetchMethod::Post,
                     Some(headers.clone()),
                     Some(request.clone()),
-                    query.timeout,
+                    query.timeout.or(Some(self.config.query_timeout)),
                 )
                 .await;
 

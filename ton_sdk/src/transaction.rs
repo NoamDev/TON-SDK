@@ -125,7 +125,7 @@ impl TryFrom<&ton_block::Transaction> for Transaction {
             Some(ActionPhase {
                 success: phase.success,
                 valid: phase.valid,
-                no_funds: phase.valid,
+                no_funds: phase.no_funds,
                 result_code: phase.result_code,
                 total_fwd_fees: grams_to_u64(&phase.total_fwd_fees.unwrap_or_default())?,
                 total_action_fees: grams_to_u64(&phase.total_action_fees.unwrap_or_default())?,
@@ -152,7 +152,7 @@ impl TryFrom<&ton_block::Transaction> for Transaction {
         })?;
 
         Ok(Transaction {
-            id: Cell::from(transaction.write_to_new_cell()?)
+            id: Cell::from(transaction.serialize()?)
                 .repr_hash()
                 .to_hex_string()
                 .into(),

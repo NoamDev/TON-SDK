@@ -11,6 +11,7 @@ use crate::ClientConfig;
 use serde_json::Value;
 use std::collections::HashSet;
 use std::sync::Arc;
+use std::vec;
 
 #[tokio::test(core_threads = 2)]
 async fn batch_query() {
@@ -1009,6 +1010,7 @@ async fn transaction_tree() {
             ParamsOfQueryTransactionTree {
                 in_msg: message["id"].as_str().unwrap().to_string(),
                 abi_registry: Some(abi_registry.clone()),
+                ..Default::default()
             },
         )
         .await
@@ -1067,7 +1069,8 @@ async fn order_by_fallback() {
             "orderBy": [{"path": "id", "direction": "ASC"}]
         }
         "#,
-    ).is_err());
+    )
+    .is_err());
     assert!(serde_json::from_str::<ParamsOfQueryCollection>(
         r#"
         {
@@ -1123,4 +1126,52 @@ async fn order_by_fallback() {
         println!("{:?}", err);
     }
     assert!(result.is_err());
+}
+
+#[test]
+fn test_endpoints_replacement() {
+    let client = TestClient::new_with_config(json!({
+        "network": {
+            "endpoints": ["main.ton.dev", "net.ton.dev"],
+        }
+    }));
+
+    let endpoints: ResultOfGetEndpoints = client
+        .request(
+            "net.get_endpoints",
+            json!({}),
+        ).unwrap();
+
+    assert_eq!(
+        endpoints.endpoints,
+        vec![
+            "main2.ton.dev".to_owned(),
+            "main3.ton.dev".to_owned(),
+            "main4.ton.dev".to_owned(),
+            "net1.ton.dev".to_owned(),
+            "net5.ton.dev".to_owned(),
+        ]
+    );
+
+
+    let client = TestClient::new_with_config(json!({
+        "network": {
+            "endpoints": ["https://main2.ton.dev", "https://main.ton.dev/", "http://main3.ton.dev", "main2.ton.dev", ],
+        }
+    }));
+
+    let endpoints: ResultOfGetEndpoints = client
+        .request(
+            "net.get_endpoints",
+            json!({}),
+        ).unwrap();
+
+    assert_eq!(
+        endpoints.endpoints,
+        vec![
+            "https://main2.ton.dev".to_owned(),
+            "http://main3.ton.dev".to_owned(),
+            "main4.ton.dev".to_owned(),
+        ]
+    );
 }

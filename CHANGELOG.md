@@ -2,22 +2,100 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.21.0] – 2021-08-18
+
+### New
+- `crypto.create_encryption_box` function for creating SDK-defined encryption boxes. First supported 
+algorithm - AES with CBC mode.
+
+### Fixed
+- `tvm.run_executor` did not work when SDK is configured to use TONOS SE, because of incomplete default
+blockchain configuration. Now mainnet config from key block 10660619 (last key block at the moment of fix)
+is used as default.
+
+## [1.20.1] – 2021-07-30
+
+### New
+- Added support of contract error messages. Error messages (for example, require(...) in Solidity) are now parsed by SDK
+  and returned in error message. New field `contract_error` was added to error's `data`. 
+
+### Fixed
+- Fixed problem with WASM binaries (https://github.com/tonlabs/ton-labs-types/pull/42)
+
+## [1.20.0] – 2021-07-16
+
+### New
+- ABI version `2.1` supported.  
+  **Attention!**
+  If you work with contracts, that contain String parameters, then during migration from ABI 2.0 to 2.1 you will need to remove all String type conversions to bytes and back and pass string to your contract as is.  
+  
+- Now all requests to GraphQL are limited with timeout to react on unexpected server unavailability.
+Existing timeouts in waiting functions keep the same behaviour. All other requests timeout now can 
+be set with `net.query_timeout` config parameter. Its default value is 60000 ms
+- **Debot module**:
+    - added `encrypt`, `decrypt` functions to Sdk interface which accept encryption box handles.
+
+### Fixed
+- Deployment with empty signer in cases of public key set in TVC or deploy set.
+
+## [1.19.0] – 2021-07-07
+
+### New
+- `get_address_type` function in `utils` module, which validates address and returns its type. See the documentation.
+- `decode_account_data` function in `abi` module that converts account data BOC into JSON representation according to ABI 2.1. See the documentation.
+- Diagnostic fields `filter` and `timestamp` added to `wait_for_collection` error
+- `main.ton.dev` and `net.ton.dev` endpoints that will be deprecated on 12.07.21 are now replaced with [proper endpoints list](https://docs.ton.dev/86757ecb2/p/85c869-networks), if they were specified in network `endpoints` config 
+
+### Fixed
+- Search of the first master blocks during the network start period was fixed in blocks and transactions iterators
+
+## [1.18.0] – 2021-06-26
+
+### New
+- Iterators in `net` module: robust way to iterate blockchain items (blocks, transactions) 
+  in specified range. See documentation for `create_block_iterator` , `create_transaction_iterator`, 
+  `resume_block_iterator`, `resume_transaction_iterator`, `iterator_next`, `iterator_remove` 
+  functions.
+- Library adds `http://` protocol to endpoints `localhost`, `127.0.0.1`, `0.0.0.0` if protocol 
+  isn't specified in config.
+- **Debot module**:
+    - added tests for Json interface.
+
+## [1.17.0] – 2021-06-21
+
+### New
+- Added support of external encryption boxes. [See the documentation](docs/mod_crypto.md#register_encryption_box)
+- **Debot module**:
+    - Dengine waits for completion of all transactions in a chain initiated by debot's onchain call.
+
+## [1.16.1] – 2021-06-16
+
+### New
+- `timeout` option to `query_transaction_tree` – timeout used to limit waiting time for the next 
+  message and transaction in the transaction tree.
+  
+### Improved
+- Improved error messages regarding ABI and JSON interface. SDK now shows additional tips for the user in cases of 
+  errors.
+
+### Fixed
+- Warnings in Rust 1.52+. Little fixes in the documentation.
+- `total_output` field in fees was always 0.
+- `query_transaction_tree` didn't wait for messages.
+
 ## [1.16.0] – 2021-05-25
 
 ### New
-
 - `query_transaction_tree` function that returns messages and transactions tree produced 
-  by the specified message was added to `query` module. [See the documentation](docs/mod_net.md#query_transaction_tree)
+  by the specified message was added to `net` module. [See the documentation](docs/mod_net.md#query_transaction_tree)
 
 ### Fixed
-
 - `AbiData.key` type changed to u32.
 - attempt to use `orderBy` instead of `order` in `query_collection` will raise error.
 
 ## [1.15.0] – 2021-05-18
 
 ### New
-
 - Sync latency detection increases connection reliability. Library will change the current endpoint 
   when it detects data sync latency on it.
   
@@ -32,19 +110,16 @@ All notable changes to this project will be documented in this file.
 ## [1.14.1] – 2021-04-29
 
 ### Fixed
-
 - Fixed building under Rust versions older than 1.51.
 
 ## [1.14.0] – 2021-04-28
 
 ### New
-
 - **Debot module**:
     - implementation of Network DeBot interface in DEngine.
     - implementation of `signHash` function in Sdk interface.
 
 ### Fixed
-
 - **Debot module**:
     - fixed bug in Json interface with supporting nested structures and arrays of structures.
     - fixed bug in Json interface with keys containing hyphens.
@@ -52,7 +127,6 @@ All notable changes to this project will be documented in this file.
 ## [1.13.0] – 2021-04-23
 
 ### New
-
 - [`net.query_counterparties`](docs/mod_net.md#query_counterparties) - allows to query and paginate through the list of accounts that the specified account 
  has interacted with, sorted by the time of the last internal message between accounts.   
   Subscription to counterparties collection is available via `net.subscribe_collection` function.
@@ -71,7 +145,6 @@ All notable changes to this project will be documented in this file.
     - Implementation of `Json` DeBot interface in DEngine.
 
 ### Fixed
-
 - `BuilderOp::Integer.size` type has changed from `u8` to `u32`.  
 - **Debot Module**:
     - `Sdk` interface function `getAccountsDataByHash` didn't find accounts by `code_hash` with leading zero.
@@ -79,7 +152,6 @@ All notable changes to this project will be documented in this file.
 ## [1.12.0] – 2021-04-01
 
 ### New
-
 - [`utils.compress_zstd`](docs/mod_utils.md#compress_zstd) compresses data using Facebook's Zstandard algorithm.
 - [`utils.decompress_zstd`](docs/mod_utils.md#decompress_zstd) decompresses data using Facebook's Zstandard algorithm.
 - **Debot module**:
@@ -88,7 +160,6 @@ All notable changes to this project will be documented in this file.
     - `approve` DeBot Browser callback which is called by DEngine to request permission for DeBot activities.
 
 ### Changed
-
 - **Debot Module**:
     - [breaking] `fetch` function does't create an instance of debot. It returns DeBot metadata (`DebotInfo`).
     - [breaking] `start` function does't create an instance of debot. It accepts DeBot handle created in `init` function.
@@ -137,14 +208,12 @@ DApp Server endpoints. Otherwise [default configuration](https://github.com/tonl
 - functions-helpers for enum type variable creation for [Signer](docs/mod_abi.md#signer), [Abi](docs/mod_abi.md#abi), [ParamsOfAppDebotBrowser](mod_debot.md#paramsofappdebotbrowser)
 
 ### Fixed
-
 -  doc generator: app object interface description, constructor functions-helpers for enum type variable creation, added new line in the end if api.json
 - library libsecp256k1 upgraded to fix https://rustsec.org/advisories/RUSTSEC-2019-0027
 
 ## 1.9.0 Feb 19, 2021
 
 ### New
-
 - `tuple_list_as_array` parameter in `tvm.run_get` function which controls lists representation.
 Default is stack-like based on nested tuples. If set to `true` then returned lists are encoded as plain arrays.  Use this option if you receive this error on Web: "Runtime error. Unreachable code should not be executed..."
 This reduces stack size requirements for long lists.
@@ -152,25 +221,21 @@ This reduces stack size requirements for long lists.
 - Fields `config_servers`, `query_url`, `account_address`, `gas_used` added into specific errors' `ClientError.data` object.
 
 ### Fixed
-
 - Binaries download links are now under https protocol
 - If you receive this error on Web: "Runtime error. Unreachable code should not be executed..." in `run_get`, use the new parameter `tuple_list_as_array = true`. [See the documentation](docs/mod_tvm.md#run_get). This may happen, for example, when elector contract contains too many participants
 
 ## 1.8.0 Feb 11, 2021
 
 ### New
-
 - **Debot Module**:
     - Added new built-in interface `Msg` which allows to send external message to blockchain and sign it with supplied keypair.
 
 ### Fixed
-
 - `crypto.hdkey_public_from_xprv` used compressed 33-byte form instead of normal 32-byte.
 
 ## 1.7.0 Feb 9, 2021
 
 ### New
-
 - BOC cache management functions were introduced:
   - `boc.cache_set`,
   - `boc.cache_get`

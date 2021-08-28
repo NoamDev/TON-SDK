@@ -43,12 +43,25 @@ pub(crate) fn deserialize_object_from_cell<S: Deserializable>(
     cell: ton_types::Cell,
     name: &str,
 ) -> ClientResult<S> {
+    let tip = match name {
+        "message" => "Please check that you have specified the message's BOC, not body, as a parameter.",
+        _ => "",
+    };
+    let tip_full = if tip.len() > 0 {
+        format!(".\nTip: {}", tip)
+    } else {
+        "".to_string()
+    };
     S::construct_from(&mut cell.into())
-        .map_err(|err| Error::invalid_boc(format!("cannot deserialize {} from BOC: {}", name, err)))
+        .map_err(|err|
+            Error::invalid_boc(
+                format!("cannot deserialize {} from BOC: {}{}", name, err, tip_full)
+            )
+        )
 }
 
 #[derive(Clone)]
-pub(crate) enum DeserializedBoc {
+pub enum DeserializedBoc {
     Cell(ton_types::Cell),
     Bytes(Vec<u8>),
 }
@@ -63,13 +76,13 @@ impl DeserializedBoc {
 }
 
 #[derive(Clone)]
-pub(crate) struct DeserializedObject<S: Deserializable> {
+pub struct DeserializedObject<S: Deserializable> {
     pub boc: DeserializedBoc,
     pub cell: ton_types::Cell,
     pub object: S,
 }
 
-pub(crate) fn deserialize_object_from_base64<S: Deserializable>(
+pub fn deserialize_object_from_base64<S: Deserializable>(
     b64: &str,
     name: &str,
 ) -> ClientResult<DeserializedObject<S>> {

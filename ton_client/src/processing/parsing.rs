@@ -7,7 +7,7 @@ use crate::processing::types::DecodedOutput;
 use serde_json::Value;
 use std::sync::Arc;
 
-pub(crate) async fn parse_transaction_boc(
+pub async fn parse_transaction_boc(
     context: Arc<ClientContext>,
     transaction: TransactionBoc,
 ) -> ClientResult<(Value, Vec<String>)> {
@@ -28,7 +28,7 @@ pub(crate) async fn parse_transaction_boc(
     ))
 }
 
-pub(crate) async fn decode_output(
+pub async fn decode_output(
     context: &Arc<ClientContext>,
     abi: &Abi,
     messages: Vec<String>,

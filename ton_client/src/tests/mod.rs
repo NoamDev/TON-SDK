@@ -85,6 +85,7 @@ pub const HELLO: &str = "Hello";
 pub const EVENTS: &str = "Events";
 pub const TEST_DEBOT: &str = "testDebot";
 pub const TEST_DEBOT_TARGET: &str = "testDebotTarget";
+pub const EXCEPTION: &str = "Exception";
 
 struct RequestData {
     sender: Option<Sender<ClientResult<Value>>>,
@@ -94,14 +95,12 @@ struct RequestData {
 
 struct TestRuntime {
     pub next_request_id: u32,
-    pub next_callback_id: u32,
     pub requests: HashMap<u32, RequestData>,
 }
 
 impl TestRuntime {
     fn new() -> Self {
         Self {
-            next_callback_id: 1,
             next_request_id: 1,
             requests: HashMap::new(),
         }

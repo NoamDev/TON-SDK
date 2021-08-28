@@ -15,15 +15,15 @@
 #[cfg(test)]
 mod tests;
 
-pub(crate) mod blocks_walking;
+pub mod blocks_walking;
 mod errors;
 mod fetching;
 mod internal;
-pub(crate) mod parsing;
-pub(crate) mod process_message;
-pub(crate) mod send_message;
+pub mod parsing;
+pub mod process_message;
+pub mod send_message;
 mod types;
-pub(crate) mod wait_for_transaction;
+pub mod wait_for_transaction;
 
 pub use errors::{Error, ErrorCode};
 pub use process_message::{process_message, ParamsOfProcessMessage};

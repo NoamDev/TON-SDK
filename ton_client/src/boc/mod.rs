@@ -13,14 +13,14 @@
 
 use serde::{Deserialize, Deserializer};
 
-pub(crate) mod blockchain_config;
-pub(crate) mod cache;
+pub mod blockchain_config;
+pub mod cache;
 mod errors;
-pub(crate) mod hash;
-pub(crate) mod internal;
-pub(crate) mod parse;
-pub(crate) mod tvc;
-pub(crate) mod encode;
+pub mod hash;
+pub mod internal;
+pub mod parse;
+pub mod tvc;
+pub mod encode;
 
 #[cfg(test)]
 pub(crate) mod tests;

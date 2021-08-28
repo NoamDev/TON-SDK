@@ -12,12 +12,12 @@
  *
  */
 
-pub(crate) mod call_tvm;
-pub(crate) mod check_transaction;
+pub mod call_tvm;
+pub mod check_transaction;
 mod errors;
-pub(crate) mod run_get;
-pub(crate) mod run_message;
-pub(crate) mod types;
+pub mod run_get;
+pub mod run_message;
+pub mod types;
 
 mod stack;
 #[cfg(test)]
@@ -29,5 +29,6 @@ pub use run_message::{
     run_executor, run_tvm, AccountForExecutor, ParamsOfRunExecutor, ParamsOfRunTvm,
     ResultOfRunExecutor, ResultOfRunTvm,
 };
+pub(crate) use run_message::run_executor_internal;
 pub use ton_sdk::TransactionFees;
 pub use types::ExecutionOptions;

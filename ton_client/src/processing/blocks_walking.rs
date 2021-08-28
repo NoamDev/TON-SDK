@@ -145,6 +145,14 @@ pub(crate) async fn find_last_shard_block(
     }
 }
 
+// added because Endpoint is crate private 
+pub async fn find_last_shard_block_pub(
+    context: &Arc<ClientContext>,
+    address: &MsgAddressInt,
+) -> ClientResult<ton_sdk::BlockId> {
+    find_last_shard_block( context, address, None ).await
+}
+
 pub async fn wait_next_block(
     context: &Arc<ClientContext>,
     current: &str,
