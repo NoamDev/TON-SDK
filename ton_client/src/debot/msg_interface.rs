@@ -76,7 +76,7 @@ impl MsgInterface {
             .map_err(|e| format!("{}", e))?
             .parsed;
         let dest = parsed_msg["dst"].as_str().ok_or(format!("failed to parse dst address"))?.to_owned();
-        let target_state = DEngine::load_state(self.ton.clone(), dest)
+        let target_state = DEngine::load_state(self.ton.clone(), dest, false)
             .await
             .map_err(|e| format!("{}", e))?;
         let callobj = ContractCall::new(
